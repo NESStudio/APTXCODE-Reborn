@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*' # 当推送v开头的tag时触发
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Package application
+      run: npm run package -- --${{ runner.os }}
+      
+    - name: Create Release
+      if: matrix.os == 'ubuntu-latest' # 只在ubuntu runner上创建release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/*.${{ runner.os == 'Windows' && 'exe' || runner.os == 'macOS' && 'zip' || 'AppImage' }}
+        asset_name: torrent-generator-${{ runner.os }}-${{ github.ref }}.${{ runner.os == 'Windows' && 'exe' || runner.os == 'macOS' && 'zip' || 'AppImage' }}
+        asset_content_type: application/octet-stream
