@@ -30,7 +30,7 @@ jobs:
       run: npm run build
       
     - name: Package application
-      run: npm run package -- --${{ runner.os | lower }}
+      run: npm run package -- --${{ runner.os.split('-')[0] }}
       
     - name: Create Release
       if: matrix.os == 'ubuntu-latest' # 只在ubuntu runner上创建release
@@ -48,5 +48,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: dist/*.${{ runner.os == 'windows-latest' && 'exe' || runner.os == 'macos-latest' && 'zip' || 'AppImage' }}
-        asset_name: torrent-generator-${{ runner.os | lower }}-${{ github.ref }}.${{ runner.os == 'windows-latest' && 'exe' || runner.os == 'macos-latest' && 'zip' || 'AppImage' }}
+        asset_name: APTXCODE-${{ github.ref }}-${{ runner.arch }}-${{ runner.os.split('-')[0] }}.${{ runner.os == 'windows-latest' && 'exe' || runner.os == 'macos-latest' && 'zip' || 'AppImage' }}
         asset_content_type: application/octet-stream
