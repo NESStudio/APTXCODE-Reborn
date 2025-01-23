@@ -1,0 +1,65 @@
+{
+  "type": "module",
+  "overrides": {
+    "*.cjs": {
+      "type": "commonjs"
+    }
+  },
+  "name": "torrent-generator",
+  "exports": {
+    "./preload.mjs": "./preload.mjs"
+  },
+  "version": "1.0.0",
+  "description": "APTXCODE",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "config": {
+    "electron": {
+      "disableInputMethod": true
+    }
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bencode": "^2.0.2",
+    "electron-squirrel-startup": "^1.0.1",
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "cn.aptx.aptxcode",
+    "productName": "APTXCODE",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": "zip"
+    },
+    "win": {
+      "target": "portable"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "asar": true,
+    "asarUnpack": "templates",
+    "extraResources": [
+      {
+        "from": "templates",
+        "to": "templates"
+      }
+    ]
+  }
+}

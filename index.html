@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APTXCODE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>APTXCODE</h1>
+    
+    <!-- 文件选择区域 -->
+    <div class="section">
+      <h2>选择文件</h2>
+      <button id="select-files">选择文件</button>
+      <div id="file-list"></div>
+    </div>
+
+    <!-- 元数据输入 -->
+    <div class="section">
+      <h2>元数据</h2>
+      <div class="input-group">
+        <label>标题:</label>
+        <input type="text" id="title" required>
+      </div>
+      <div class="input-group inline-group">
+        <div>
+          <label>剧场版:</label>
+          <label class="switch">
+            <input type="checkbox" id="isMovie">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div>
+          <label>集数:</label>
+          <input type="text" id="episode">
+        </div>
+        <div>
+          <label>发布类型:</label>
+          <select id="releaseType">
+            <option value="简体MP4">简体MP4</option>
+            <option value="繁体MP4">繁体MP4</option>
+            <option value="MKV">MKV</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分块大小设置 -->
+    <div class="section">
+      <h2>分块大小</h2>
+      <select id="piece-length">
+        <option value="1048576">1 MiB</option>
+        <option value="2097152" selected>2 MiB</option>
+        <option value="4194304">4 MiB</option>
+        <option value="8388608">8 MiB</option>
+        <option value="16777216">16 MiB</option>
+      </select>
+    </div>
+
+    <!-- 模板预览区域 -->
+    <div class="section">
+      <h2>模板预览</h2>
+      <div class="template-tabs">
+        <button class="tab-button active" data-template="forum">论坛模板</button>
+        <button class="tab-button" data-template="alliance">联盟模板</button>
+      </div>
+      <div class="template-content">
+        <div id="forum-template" class="template-pane active">
+          <div class="template-header">
+            <h3>标题</h3>
+            <button class="copy-button" data-target="forum-title">复制</button>
+          </div>
+          <textarea class="template-textarea title-textarea" id="forum-title"></textarea>
+          <div class="template-header">
+            <h3>内容</h3>
+            <button class="copy-button" data-target="forum-content">复制</button>
+          </div>
+          <textarea class="template-textarea" id="forum-content"></textarea>
+        </div>
+        <div id="alliance-template" class="template-pane">
+          <div class="template-header">
+            <h3>标题</h3>
+            <button class="copy-button" data-target="alliance-title">复制</button>
+          </div>
+          <textarea class="template-textarea title-textarea" id="alliance-title"></textarea>
+          <div class="template-header">
+            <h3>内容</h3>
+            <button class="copy-button" data-target="alliance-content">复制</button>
+          </div>
+          <textarea class="template-textarea" id="alliance-content"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 生成按钮 -->
+    <div class="section">
+      <button id="generate">生成Torrent</button>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
