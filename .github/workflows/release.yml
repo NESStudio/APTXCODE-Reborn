@@ -61,15 +61,21 @@ jobs:
           echo "extension=AppImage" >> $GITHUB_ENV
         fi
       
+    - name: Get version from package.json
+      id: version
+      run: |
+        VERSION=$(jq -r .version package.json)
+        echo "version=$VERSION" >> $GITHUB_ENV
+        
     - name: Determine artifact path
       id: artifact_path
       run: |
         if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-          echo "artifact_path=dist/APTXCODE ${{ github.ref }}.exe" >> $GITHUB_ENV
+          echo "artifact_path=dist/APTXCODE ${{ env.version }}.exe" >> $GITHUB_ENV
         elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-          echo "artifact_path=dist/APTXCODE-${{ github.ref }}-${{ runner.arch }}-mac.zip" >> $GITHUB_ENV
+          echo "artifact_path=dist/APTXCODE-${{ env.version }}-${{ runner.arch }}-mac.zip" >> $GITHUB_ENV
         else
-          echo "artifact_path=dist/APTXCODE-${{ github.ref }}.AppImage" >> $GITHUB_ENV
+          echo "artifact_path=dist/APTXCODE-${{ env.version }}.AppImage" >> $GITHUB_ENV
         fi
         
     - name: Upload Release Asset
@@ -77,5 +83,5 @@ jobs:
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
         asset_path: ${{ env.artifact_path }}
-        asset_name: APTXCODE-${{ github.ref }}-${{ runner.arch }}-${{ matrix.os }}.${{ env.extension }}
+        asset_name: APTXCODE-${{ env.version }}-${{ runner.arch }}-${{ matrix.os }}.${{ env.extension }}
         asset_content_type: application/octet-stream
