@@ -61,10 +61,21 @@ jobs:
           echo "extension=AppImage" >> $GITHUB_ENV
         fi
       
+    - name: Determine artifact path
+      id: artifact_path
+      run: |
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          echo "artifact_path=dist/APTXCODE ${{ github.ref }}.exe" >> $GITHUB_ENV
+        elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+          echo "artifact_path=dist/APTXCODE-${{ github.ref }}-${{ runner.arch }}-mac.zip" >> $GITHUB_ENV
+        else
+          echo "artifact_path=dist/APTXCODE-${{ github.ref }}.AppImage" >> $GITHUB_ENV
+        fi
+        
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: dist/*.${{ env.extension }}
+        asset_path: ${{ env.artifact_path }}
         asset_name: APTXCODE-${{ github.ref }}-${{ runner.arch }}-${{ matrix.os }}.${{ env.extension }}
         asset_content_type: application/octet-stream
