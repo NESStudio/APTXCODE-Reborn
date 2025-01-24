@@ -30,7 +30,18 @@ jobs:
       run: npm run build
       
     - name: Package application
-      run: npm run package -- --${{ runner.os.split('-')[0] }}
+      run: npm run package
+
+    - name: Determine artifact extension
+      id: artifact
+      run: |
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          echo "extension=exe" >> $GITHUB_ENV
+        elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+          echo "extension=zip" >> $GITHUB_ENV
+        else
+          echo "extension=AppImage" >> $GITHUB_ENV
+        fi
       
     - name: Create Release
       if: matrix.os == 'ubuntu-latest' # 只在ubuntu runner上创建release
@@ -47,6 +58,6 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/*.${{ runner.os == 'windows-latest' && 'exe' || runner.os == 'macos-latest' && 'zip' || 'AppImage' }}
-        asset_name: APTXCODE-${{ github.ref }}-${{ runner.arch }}-${{ runner.os.split('-')[0] }}.${{ runner.os == 'windows-latest' && 'exe' || runner.os == 'macos-latest' && 'zip' || 'AppImage' }}
+        asset_path: dist/*.${{ env.extension }}
+        asset_name: APTXCODE-${{ github.ref }}-${{ runner.arch }}-${{ matrix.os }}.${{ env.extension }}
         asset_content_type: application/octet-stream
