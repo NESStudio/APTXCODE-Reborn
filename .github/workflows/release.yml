@@ -6,14 +6,29 @@ on:
       - 'v*' # 当推送v开头的tag时触发
 
 jobs:
-  release:
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+  build-and-upload:
+    needs: create-release
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    
     steps:
     - uses: actions/checkout@v3
     
@@ -43,21 +58,10 @@ jobs:
           echo "extension=AppImage" >> $GITHUB_ENV
         fi
       
-    - name: Create Release
-      if: matrix.os == 'ubuntu-latest' # 只在ubuntu runner上创建release
-      id: create_release
-      uses: actions/create-release@v1
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-        generate_release_notes: true
-        
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
         asset_path: dist/*.${{ env.extension }}
         asset_name: APTXCODE-${{ github.ref }}-${{ runner.arch }}-${{ matrix.os }}.${{ env.extension }}
         asset_content_type: application/octet-stream
