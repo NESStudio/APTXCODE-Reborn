@@ -76,9 +76,21 @@ jobs:
         if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
           echo "artifact_path=dist/APTXCODE ${{ env.version }}.exe" >> $GITHUB_ENV
         elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-          echo "artifact_path=dist/APTXCODE-${{ env.version }}-${{ runner.arch }}-mac.zip" >> $GITHUB_ENV
+          echo "artifact_path=dist/APTXCODE-${{ env.version }}-${{ runner.arch }}.dmg" >> $GITHUB_ENV
         else
           echo "artifact_path=dist/APTXCODE-${{ env.version }}.AppImage" >> $GITHUB_ENV
+        fi
+    
+    - name: Determin asset name
+      id: asset_name
+      shell: bash
+      run: |
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          echo "artifact_name=APTXCODE_v${{ env.version }}_windows_x64.exe" >> $GITHUB_ENV
+        elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+          echo "artifact_name=APTXCODE_v${{ env.version }}_darwin_arm64.dmg" >> $GITHUB_ENV
+        else
+          echo "artifact_name=APTXCODE_v${{ env.version }}_linux_x64.AppImage" >> $GITHUB_ENV
         fi
         
     - name: Upload Release Asset
@@ -86,5 +98,5 @@ jobs:
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
         asset_path: ${{ env.artifact_path }}
-        asset_name: APTXCODE-${{ env.version }}-${{ runner.arch }}-${{ matrix.os }}.${{ env.extension }}
+        asset_name: ${{ env.artifact_name }}
         asset_content_type: application/octet-stream

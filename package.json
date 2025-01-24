@@ -32,7 +32,8 @@
   },
   "devDependencies": {
     "electron": "^28.3.3",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "electron-icon-builder": "^2.0.1"
   },
   "build": {
     "appId": "cn.aptx.aptxcode",
@@ -41,18 +42,20 @@
       "output": "dist"
     },
     "files": [
-      "**/*",
-      "!node_modules/**/*"
+      "**/*"
     ],
     "mac": {
       "category": "public.app-category.utilities",
-      "target": "zip"
+      "icon": "./assets/icons/icon",
+      "target": "dmg"
     },
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "icon": "./assets/icons/icon"
     },
     "linux": {
-      "target": "AppImage"
+      "target": "AppImage",
+      "icon": "./assets/icons/icon.png"
     },
     "asar": true,
     "asarUnpack": "templates",

@@ -4,6 +4,14 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    asarUnpack: 'node_modules/**/*',
+    icon: './assets/icons/icon',
+    extraResources: [
+      {
+        from: 'templates',
+        to: 'templates'
+      }
+    ]
   },
   rebuildConfig: {},
   makers: [
@@ -17,7 +25,11 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
+      config: {
+        options: {
+          icon: './assets/icons/icon.png'
+        }
+      },
     },
     {
       name: '@electron-forge/maker-rpm',
@@ -29,7 +41,7 @@ module.exports = {
       name: '@electron-forge/plugin-auto-unpack-natives',
       config: {},
     },
-    // Fuses are used to enable/disable various Electron functionality
+        // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application
     new FusesPlugin({
       version: FuseVersion.V1,
