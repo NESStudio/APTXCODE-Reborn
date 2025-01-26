@@ -9,7 +9,7 @@
   "exports": {
     "./preload.mjs": "./preload.mjs"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "APTXCODE",
   "main": "main.js",
   "scripts": {

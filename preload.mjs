@@ -7,7 +7,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   calculateCRC32: (filePath) => ipcRenderer.invoke('calculateCRC32', filePath),
   createTorrent: (files, pieceLength) => ipcRenderer.invoke('createTorrent', files, pieceLength),
   basename: (filePath) => path.basename(filePath),
-  calculateTotalSize: (files) => ipcRenderer.invoke('calculateTotalSize', files)
+  calculateTotalSize: (files) => ipcRenderer.invoke('calculateTotalSize', files),
+  getSystemInfo: () => ipcRenderer.invoke('get-system-info'),
+  handleDrop: (filePaths) => ipcRenderer.invoke('handle-drop', filePaths) // 添加 handleDrop 方法
 })
 
 // 安全警告

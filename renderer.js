@@ -7,13 +7,60 @@ async function renderTemplates(templateData) {
   document.getElementById('alliance-content').value = templates.allianceContent;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // 初始化变量
   let selectedFiles = [];
   const templatePanes = document.querySelectorAll('.template-pane');
   const tabButtons = document.querySelectorAll('.tab-button');
   const fileList = document.getElementById('file-list');
   const pieceLengthSelect = document.getElementById('piece-length');
+  const dropZone = document.getElementById('drop-zone');
+
+  // 初始化系统提示
+  const macosHint = document.getElementById('macos-hint');
+  const windowsLinuxHint = document.getElementById('windows-linux-hint');
+  const { isMacOS } = await window.electronAPI.getSystemInfo();
+  macosHint.style.display = isMacOS ? 'inline' : 'none';
+  windowsLinuxHint.style.display = isMacOS ? 'none' : 'inline';
+
+  // 拖拽事件处理
+  if (dropZone) {
+    // 阻止默认行为
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // 高亮拖拽区域
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+    });
+
+    // 处理文件拖放
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    async function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = await window.electronAPI.handleDrop(Array.from(dt.files).map(f => f.path));
+      
+      if (files.length > 0) {
+        selectedFiles = files;
+        updateFileList();
+        checkSingleFileCRC32();
+        // 隐藏拖拽提示区域
+        const dropHint = document.querySelector('.drop-hint');
+        dropHint.style.display = 'none';
+      }
+    }
+  }
 
   // 添加复制按钮事件监听器
   document.querySelectorAll('.copy-button').forEach(button => {
@@ -36,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-  
+
   // 文件选择事件
   document.getElementById('select-files').addEventListener('click', async () => {
     try {
@@ -50,6 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 更新文件列表
   function updateFileList() {
+    const dropHint = document.querySelector('.drop-hint');
+    if (selectedFiles.length > 0) {
+      dropHint.style.display = 'none';
+      fileList.style.display = 'block';
+    } else {
+      dropHint.style.display = 'block';
+      fileList.style.display = 'none';
+    }
+
     fileList.innerHTML = selectedFiles
       .map(file => {
         const fileName = window.electronAPI.basename(file);

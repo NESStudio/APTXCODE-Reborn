@@ -13,8 +13,17 @@
     <!-- 文件选择区域 -->
     <div class="section">
       <h2>选择文件</h2>
-      <button id="select-files">选择文件</button>
-      <div id="file-list"></div>
+      <div id="drop-zone">
+        <button id="select-files">选择文件</button>
+        <div class="drop-hint">
+          或拖拽文件/文件夹到这里<br>
+          <span id="system-hint" style="font-size: 12px; color: #666;">
+            <span id="macos-hint" style="display: none;">macOS: 可同时选择文件和文件夹</span>
+            <span id="windows-linux-hint" style="display: none;">Windows/Linux: 请分别选择文件或文件夹</span>
+          </span>
+        </div>
+        <div id="file-list"></div>
+      </div>
     </div>
 
     <!-- 元数据输入 -->

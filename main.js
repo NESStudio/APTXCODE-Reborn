@@ -37,6 +37,11 @@ function createWindow() {
   })
 
   mainWindow.loadFile('index.html')
+
+  // 在点击关闭按钮时立即退出程序
+  mainWindow.on('close', () => {
+    app.quit();
+  });
 }
 
 app.whenReady().then(() => {
@@ -55,37 +60,76 @@ app.on('window-all-closed', () => {
   }
 })
 
+// 处理系统信息请求
+ipcMain.handle('get-system-info', async () => {
+  return {
+    isMacOS: process.platform === 'darwin',
+    isWindows: process.platform === 'win32',
+    isLinux: process.platform === 'linux'
+  }
+})
+
+// 递归获取所有文件路径
+const getAllFiles = async (filePath) => {
+  const stats = await fs.promises.stat(filePath)
+  if (stats.isFile()) {
+    return [filePath]
+  }
+  
+  const files = []
+  const items = await fs.promises.readdir(filePath)
+  for (const item of items) {
+    // 忽略.DS_Store等系统文件
+    if (item.startsWith('.') || item === 'Thumbs.db') {
+      continue
+    }
+    const fullPath = path.join(filePath, item)
+    files.push(...await getAllFiles(fullPath))
+  }
+  return files
+}
+
 // 处理文件/文件夹选择
 ipcMain.handle('select-files', async () => {
-  const result = await dialog.showOpenDialog({
-    properties: ['openFile', 'openDirectory', 'multiSelections']
-  })
+  let properties = ['multiSelections'];
   
-  // 递归获取所有文件路径
-    const getAllFiles = async (filePath) => {
-      const stats = await fs.promises.stat(filePath)
-      if (stats.isFile()) {
-        return [filePath]
-      }
-      
-      const files = []
-      const items = await fs.promises.readdir(filePath)
-      for (const item of items) {
-        // 忽略.DS_Store等系统文件
-        if (item.startsWith('.') || item === 'Thumbs.db') {
-          continue
-        }
-        const fullPath = path.join(filePath, item)
-        files.push(...await getAllFiles(fullPath))
-      }
-      return files
+  // 根据系统设置不同属性
+  if (process.platform === 'darwin') {
+    properties.push('openFile', 'openDirectory');
+  } else {
+    // Windows/Linux系统需要用户选择模式
+    const { response } = await dialog.showMessageBox({
+      type: 'question',
+      buttons: ['选择文件', '选择文件夹', '取消'],
+      message: '请选择模式',
+      detail: 'Windows/Linux系统不支持同时选择文件和文件夹'
+    });
+    
+    if (response === 0) {
+      properties.push('openFile');
+    } else if (response === 1) {
+      properties.push('openDirectory');
+    } else {
+      return []; // 用户取消
     }
+  }
 
+  const result = await dialog.showOpenDialog({ properties });
+  
   const allFiles = []
   for (const filePath of result.filePaths) {
     allFiles.push(...await getAllFiles(filePath))
   }
   
+  return allFiles
+})
+
+// 处理拖拽文件/文件夹
+ipcMain.handle('handle-drop', async (event, filePaths) => {
+  const allFiles = []
+  for (const filePath of filePaths) {
+    allFiles.push(...await getAllFiles(filePath))
+  }
   return allFiles
 })
 
