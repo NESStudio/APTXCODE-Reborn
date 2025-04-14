@@ -220,19 +220,36 @@ ipcMain.handle('createTorrent', async (event, files, pieceLength) => {
       info: {
         'piece length': pieceLength,
         name: torrentName,
-        files: files.map(file => {
-          console.log('Processing file:', file);
-          const fileStats = fs.statSync(file);
-          if (!fileStats.isFile()) {
-            throw new Error(`Path is not a file: ${file}`);
-          }
-          return {
-            path: [path.relative(path.dirname(files[0]), file)],
-            length: fileStats.size
-          };
-        }),
-        // Generate pieces
-        pieces: (() => {
+        ...(files.length === 1 ? {
+          length: fs.statSync(files[0]).size,
+          pieces: (() => {
+            const data = fs.readFileSync(files[0]);
+            const pieces = [];
+            let offset = 0;
+            
+            while (offset < data.length) {
+              const pieceData = data.slice(offset, offset + pieceLength);
+              const hash = crypto.createHash('sha1').update(pieceData).digest();
+              pieces.push(hash);
+              offset += pieceLength;
+            }
+            
+            return Buffer.concat(pieces);
+          })()
+        } : {
+          files: files.map(file => {
+            console.log('Processing file:', file);
+            const fileStats = fs.statSync(file);
+            if (!fileStats.isFile()) {
+              throw new Error(`Path is not a file: ${file}`);
+            }
+            return {
+              path: [path.relative(path.dirname(files[0]), file)],
+              length: fileStats.size
+            };
+          }),
+          // Generate pieces
+          pieces: (() => {
           const pieces = [];
           let piece = Buffer.alloc(0);
           
@@ -256,8 +273,9 @@ ipcMain.handle('createTorrent', async (event, files, pieceLength) => {
           
           return Buffer.concat(pieces);
         })()
-      }
+      })
     }
+  }
 
     console.log('Created torrent structure:', torrent);
 
