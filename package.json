@@ -5,7 +5,7 @@
       "type": "commonjs"
     }
   },
-  "name": "torrent-generator",
+  "name": "aptxcode",
   "exports": {
     "./preload.mjs": "./preload.mjs"
   },
