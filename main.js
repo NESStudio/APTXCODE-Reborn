@@ -209,7 +209,9 @@ ipcMain.handle('createTorrent', async (event, files, pieceLength) => {
       'udp://tracker.skyts.cc:6969/announce',
       'udp://tracker.ink:6969/announce',
       'udp://asia.tracker.ink:6969/announce',
-      'udp://open.tracker.ink:6969/announce'
+      'udp://open.tracker.ink:6969/announce',
+      'https://tracker.ghostchu-services.top/announce',
+      'udp://utracker.ghostchu-services.top:6969'
     ];
 
     const torrent = {
